@@ -17,4 +17,4 @@ const calculateBmi = (height: number, mass: number):string => {
     if (BMI >= 35) return 'EXTREMELY OBESE';
 }
 
-console.log(calculateBmi(180, 74))
+console.log(calculateBmi(180, 74)) // NORMAL RANGE
