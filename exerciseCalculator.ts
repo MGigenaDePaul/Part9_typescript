@@ -10,6 +10,8 @@ boolean value describing if the target was reached
 a rating between the numbers 1-3 that tells how well the hours are met. You can decide on the metric on your own.
 a text value explaining the rating, you can come up with the explanations
 */
+
+/*
 interface Values {
     periodLength: number;
     trainingDays: number;
@@ -74,49 +76,93 @@ function calculateExercises(array: number[], target: number): Values {
 
 calculateExercises([3, 0, 2, 4.5, 0, 3, 1], 2)
 
-
-/* THIS IS THE FIRST VERSION, I DID A MESS, but it's useful the structure
-
-// I don't count ratingDescription, success, average as args yet
-
-    // initialize
-    let countHours = 0 // hours of exercise
-    res.trainingDays = 0  // training day count 
-    res.periodLength.length = 0 // array length is zero
-
-    // iterate over the array 
-    for (let i = 0; i < res.periodLength.length; i++) {
-        res.periodLength.length = res.periodLength.length + 1 
-
-        if (res.periodLength[i] > 0) { 
-            countHours = countHours + res.periodLength[i]
-            res.trainingDays = res.trainingDays + 1
-        } 
-    }
-    // reached target?    
-    res.target = target 
-
-    if (res.average < res.target) {
-        res.success = false
-        res.ratingDescription = "Not too bad but could be better"
-        res.rating = 2
-    }
-
-    if (res.average === res.target) {
-        res.success = true 
-        res.ratingDescription = "You reached the target"
-        res.rating = 3
-    }
-
-    if (res.average > res.target) {
-        res.success = true
-        res.ratingDescription = "You did amazing"
-        res.rating = 4
-    }
-
-    // average 
-    res.average = countHours / res.periodLength.length
-
-    console.log(res)
-    return res
 */
+
+interface Values {
+    target: number;
+    periodLength: number[]
+}
+
+// arg 0 starts from 'run'
+const parseTheArguments = (args: string[]): Values => {
+    if (args.length < 4) throw new Error ('Not enough arguments')
+    
+    const arrayOfNumbers = []
+    // iterate from position 3, that is after the target
+    for (let i = 3; i < args.length; i++) {
+        arrayOfNumbers.push(Number(args[i]))
+    }
+
+    console.log('array of numbers:', arrayOfNumbers)
+
+    if (!isNaN(Number(args[2]))) {
+        return {
+            target: Number(args[2]),
+            periodLength: arrayOfNumbers
+        }
+    }
+}
+
+const calculateExercises = (target: number, array: number[]) => {
+    let countHours = 0;
+    let average = 0;
+    let trainingDays = 0;
+    let success;
+    let ratingDescription;
+    let rating;
+
+    console.log('DALE ARRAY LENGTH', array.length)
+
+    for (let i = 0; i < array.length; i++) { 
+        countHours = countHours + array[i];
+        if (array[i] > 0) {
+            trainingDays = trainingDays + 1;
+        }
+    }
+
+    average = countHours / array.length;
+    console.log('average', average)
+    
+    // see if we reach the target
+    if (average < target) {
+        success = false;
+        ratingDescription = 'Not too bad but could be better';
+        rating = 2;
+    } 
+    if (average === target) {
+        success = true;
+        ratingDescription = 'You reached the target';
+        rating = 3;
+    }
+    if (average > target) {
+        success = true;
+        ratingDescription = 'You did amazing';
+        rating = 4;
+    }
+
+    const result = {
+        periodLength: array.length,
+        trainingDays: trainingDays,
+        success: success,
+        rating: rating,
+        ratingDescription: ratingDescription,
+        target: target,
+        average: average
+    }
+
+    console.log(result)
+}
+
+console.log('TARGET', process.argv[2])
+
+try {
+    const {target, periodLength} = parseTheArguments(process.argv)
+    console.log('length of array:', periodLength)
+    calculateExercises(target, periodLength)
+} catch (error: unknown) {
+    let errorMessage = 'Something bad happened.'
+    if (error instanceof Error) {
+    errorMessage += ' Error: ' + error.message;
+    }
+    console.log(errorMessage);
+}
