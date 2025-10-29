@@ -16,7 +16,9 @@ const parseTheArguments = (args: string[]): Values => {
 
     console.log('array of numbers:', arrayOfNumbers);
 
-    if (isNaN(Number(args[2]))) throw new Error (`"${args[2]}" is not a number, provide a number`);
+    if (isNaN(Number(args[2]))) {
+        throw new Error (`"${args[2]}" is not a number, provide a number`);
+    };
 
     return {
         target: Number(args[2]),
@@ -24,7 +26,7 @@ const parseTheArguments = (args: string[]): Values => {
     };
 };
 
-const calculateExercises = (target: number, array: number[]) => {
+export const calculateExercises = (array: number[], target: number) => {
     let countHours = 0;
     let average = 0;
     let trainingDays = 0;
@@ -47,18 +49,18 @@ const calculateExercises = (target: number, array: number[]) => {
     // see if we reach the target
     if (average < target) {
         success = false;
-        ratingDescription = 'Not too bad but could be better';
-        rating = 2;
+        ratingDescription = 'bad';
+        rating = 1;
     };
     if (average === target) {
         success = true;
         ratingDescription = 'You reached the target';
-        rating = 3;
+        rating = 2;
     };
     if (average > target) {
         success = true;
         ratingDescription = 'You did amazing';
-        rating = 4;
+        rating = 3;
     };
 
     const result = {
@@ -72,17 +74,20 @@ const calculateExercises = (target: number, array: number[]) => {
     };
 
     console.log(result);
+    return result;
 };
 
-console.log('TARGET', process.argv[2]);
-
-try {
-    const {target, periodLength} = parseTheArguments(process.argv);
-    calculateExercises(target, periodLength);
-} catch (error: unknown) {
-    let errorMessage = 'Something bad happened.';
-    if (error instanceof Error) {
-    errorMessage += ' Error: ' + error.message;
+if (require.main === module) {
+    try {
+        console.log('TARGET', process.argv[2]);
+        const {periodLength, target} = parseTheArguments(process.argv);
+        calculateExercises(periodLength, target);
+    } catch (error: unknown) {
+        let errorMessage = 'Something bad happened.';
+        if (error instanceof Error) {
+            errorMessage += ' Error: ' + error.message;
+        }
+        console.log(errorMessage);
     }
-    console.log(errorMessage);
 }
+
