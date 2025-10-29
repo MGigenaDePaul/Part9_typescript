@@ -10,19 +10,19 @@ const parseTheArguments = (args: string[]): Values => {
     const arrayOfNumbers = [];
     // iterate from position 3, that is after the target
     for (let i = 3; i < args.length; i++) {
-        if (isNaN(Number(args[i]))) throw new Error (`"${args[i]}" is not a number, provide a number`)
+        if (isNaN(Number(args[i]))) throw new Error (`"${args[i]}" is not a number, provide a number`);
         arrayOfNumbers.push(Number(args[i]));
     }
 
     console.log('array of numbers:', arrayOfNumbers);
 
-    if (isNaN(Number(args[2]))) throw new Error (`"${args[2]}" is not a number, provide a number`)
+    if (isNaN(Number(args[2]))) throw new Error (`"${args[2]}" is not a number, provide a number`);
 
     return {
         target: Number(args[2]),
         periodLength: arrayOfNumbers
-    }
-}
+    };
+};
 
 const calculateExercises = (target: number, array: number[]) => {
     let countHours = 0;
@@ -69,18 +69,18 @@ const calculateExercises = (target: number, array: number[]) => {
         ratingDescription: ratingDescription,
         target: target,
         average: average
-    }
+    };
 
     console.log(result);
-}
+};
 
 console.log('TARGET', process.argv[2]);
 
 try {
-    const {target, periodLength} = parseTheArguments(process.argv)
-    calculateExercises(target, periodLength)
+    const {target, periodLength} = parseTheArguments(process.argv);
+    calculateExercises(target, periodLength);
 } catch (error: unknown) {
-    let errorMessage = 'Something bad happened.'
+    let errorMessage = 'Something bad happened.';
     if (error instanceof Error) {
     errorMessage += ' Error: ' + error.message;
     }
