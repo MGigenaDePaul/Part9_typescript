@@ -4,7 +4,6 @@ and is expressed in units of kg/m2, resulting from mass in kilograms (kg) and he
 In this case we have to represent the height in cm. So the formula is 
 BMI = (mass(kg) * 10000) / (height(cm))^2
 */
-
 interface BMI {
     height: number;
     mass: number;
@@ -26,7 +25,7 @@ const parseArguments = (args: string[]): BMI => {
     }
 }
 
-const calculateBmi = (heightCm: number, massKg: number) => {
+export function calculateBmi(heightCm: number, massKg: number) {
     const BMI = (massKg * 10000) / (heightCm * heightCm);
     let message;
 
@@ -47,17 +46,21 @@ const calculateBmi = (heightCm: number, massKg: number) => {
     };
 
     console.log(message)
+    return message
 }
 
-console.log(process.argv[3])
-
-try {
-    const {height, mass} = parseArguments(process.argv)
-    calculateBmi(height, mass)
-} catch (error) {
-    let errorMessage = 'Something bad happened.'
-    if (error instanceof Error) {
-        errorMessage += ' Error: ' + error.message;
+if (require.main === module) {
+    try {
+        const {height, mass} = parseArguments(process.argv)
+        console.log(mass) // process.argv[3]
+        calculateBmi(height, mass)  
+    } catch (error) {
+        let errorMessage = 'Something bad happened.'
+        if (error instanceof Error) {
+            errorMessage += ' Error: ' + error.message;
+        }
+        console.log(errorMessage);
     }
-    console.log(errorMessage);
 }
+
+
