@@ -4,17 +4,19 @@ export type Diagnosis = {
     latin?: string
 };
 
-// export enum Gender {
-//     Male = 'male',
-//     Female = 'female',
-//     other = 'other'
-// }
+export enum Gender {
+    Male = 'male',
+    Female = 'female',
+    Other = 'other'
+}
+
+export type NewPatientEntry = Omit<Patient, 'id'>;
 
 export type Patient = {
     id: string,
     name: string,
-    dateofBirth: string,
+    dateOfBirth: string,
     ssn: string,
-    gender: string, 
+    gender: Gender, 
     occupation: string
 };
