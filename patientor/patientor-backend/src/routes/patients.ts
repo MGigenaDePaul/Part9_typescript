@@ -1,18 +1,11 @@
 import express from 'express';
-import patients from '../../data/patients';
 import toNewPatientEntry from '../utils';
 import patientService from '../services/patientService';
 
 const router = express.Router();
 
 router.get('/', (_req, res) => {
-  res.send(patients.map(({id, name, dateOfBirth, gender, occupation}) => ({
-      id,
-      name,
-      dateOfBirth,
-      gender,
-      occupation
-    })));
+  res.send(patientService.getNonSensitiveEntries());
 });
 
 router.post('/', (req, res) => {

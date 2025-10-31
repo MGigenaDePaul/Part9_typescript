@@ -10,8 +10,6 @@ export enum Gender {
     Other = 'other'
 }
 
-export type NewPatientEntry = Omit<Patient, 'id'>;
-
 export type Patient = {
     id: string,
     name: string,
@@ -20,3 +18,7 @@ export type Patient = {
     gender: Gender, 
     occupation: string
 };
+
+export type NonSensitivePatientEntry = Omit<Patient, 'ssn'>;
+
+export type NewPatientEntry = Omit<Patient, 'id'>;
