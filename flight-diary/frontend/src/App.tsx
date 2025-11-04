@@ -13,7 +13,7 @@ const App = () => {
   const [newVisibility, setNewVisibility] = useState('');
   const [newComment, setNewComment] = useState('');
   const [diaries, setDiaries] = useState<Diary[]>([]);
-  const [notify, setNotify] = useState<Error>({});
+  const [notify, setNotify] = useState<Error | undefined>(undefined);
 
   useEffect(() => {
     getAllDiaries().then(data => {
@@ -51,7 +51,7 @@ const App = () => {
   return (
     <>
     <h2>Add new entry</h2>
-    <p style={{color: 'rgb(255,0,0)'}}>{notify.data}</p>
+    <p style={{color: 'rgb(255,0,0)'}}>{notify?.data}</p>
     <form onSubmit={diaryCreation}>
       <label>date:</label>
       <input type='date' value={newDate} onChange={(event) => (setNewDate(event.target.value))} />
