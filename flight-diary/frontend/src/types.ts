@@ -6,12 +6,7 @@ export interface DiaryEntry {
   comment: string,
 };
 
-export interface ErrorEntry {
-  data: string
-};
-
 export type Diary = DiaryEntry;
 
 export type NewDiary = Omit<Diary, 'id'>;
 
-export type Error = ErrorEntry;

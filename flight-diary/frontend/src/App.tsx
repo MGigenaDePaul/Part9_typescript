@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react'
-import type { Diary, Error } from './types'
+import type { Diary } from './types'
 import { getAllDiaries, createDiary } from './diaryService'
 import axios from 'axios';
+
+interface Error  {
+  message: string
+}
 
 const App = () => {
   const [newDate, setNewDate] = useState('');
@@ -9,7 +13,7 @@ const App = () => {
   const [newVisibility, setNewVisibility] = useState('');
   const [newComment, setNewComment] = useState('');
   const [diaries, setDiaries] = useState<Diary[]>([]);
-  const [notify, setNotify] = useState<Error | undefined>(undefined);
+  const [notify, setNotify] = useState<Error>();
 
   useEffect(() => {
     getAllDiaries().then(data => {
@@ -38,23 +42,27 @@ const App = () => {
         console.log('error status:', error.status)
         console.error('error response', error.response)
         console.log('total error', error)
-        setNotify(error.response)
-      }
+        if (error.response) {
+            setNotify({ message: error.response.data })
+          } 
+        } else {
+          setNotify({ message: 'Unknown error occurred' })
+        }      
     })
   }
 
   return (
     <>
     <h2>Add new entry</h2>
-    <p style={{color: 'rgb(255,0,0)'}}>{notify?.data}</p>
+    {notify && <p style={{color: 'rgb(255,0,0)'}}>{notify.message}</p>}
     <form onSubmit={diaryCreation}>
       <label>date:</label>
       <input type='date' value={newDate} onChange={(event) => (setNewDate(event.target.value))} />
       <br />
       {/*WEATHER*/}
       <label>weather:</label>
-      <input type='radio' name='weather' value={'sunny'} onChange={(event) => setNewWeather(event.target.value)} />
-      <label htmlFor='sunny'>sunny</label>
+      <input type='radio' name='weather' value={'maincra'} onChange={(event) => setNewWeather(event.target.value)} />
+      <label htmlFor='sunny'>maincra</label>
       <input type='radio' name='weather' value={'rainy'} onChange={(event) => setNewWeather(event.target.value)}/>
       <label htmlFor='rainy'>rainy</label>
       <input type='radio' name='weather' value={'cloudy'} onChange={(event) => setNewWeather(event.target.value)} />
