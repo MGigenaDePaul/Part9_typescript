@@ -4,8 +4,14 @@ export interface DiaryEntry {
   weather: string,
   visibility: string
   comment: string,
-}
+};
 
-export type Diary = DiaryEntry
+export interface ErrorEntry {
+  data: string
+};
 
-export type NewDiary = Omit<Diary, 'id'>
+export type Diary = DiaryEntry;
+
+export type NewDiary = Omit<Diary, 'id'>;
+
+export type Error = ErrorEntry;

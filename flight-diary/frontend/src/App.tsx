@@ -1,11 +1,7 @@
 import { useEffect, useState } from 'react'
-import type { Diary } from './types'
+import type { Diary, Error } from './types'
 import { getAllDiaries, createDiary } from './diaryService'
 import axios from 'axios';
-
-interface Error {
-  data: string
-}
 
 const App = () => {
   const [newDate, setNewDate] = useState('');
@@ -23,7 +19,6 @@ const App = () => {
   
   const diaryCreation = (event: React.SyntheticEvent) => {
     event.preventDefault()
-
     createDiary({
       date: newDate,
       weather: newWeather,
