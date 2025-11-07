@@ -8,7 +8,7 @@ import { NewPatientEntry, Patient } from '../types';
 const router = express.Router();
 
 router.get('/', (_req, res) => {
-  res.send(patientService.getNonSensitiveEntries());
+  res.send(patientService.getEntries());
 });
 
 const newPatientParser = (req: Request, _res: Response, next: NextFunction) => { 
