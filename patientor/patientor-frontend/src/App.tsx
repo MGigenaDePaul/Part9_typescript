@@ -4,26 +4,37 @@ import { Route, Link, Routes, useMatch } from "react-router-dom";
 import { Button, Divider, Container, Typography } from '@mui/material';
 
 import { apiBaseUrl } from "./constants";
-import { Patient } from "./types";
+import { Diagnosis, Patient } from "./types";
 
 import patientService from "./services/patients";
+import diagnoseService from "./services/diagnoses";
+
 import PatientListPage from "./components/PatientListPage";
 import FemaleIcon from '@mui/icons-material/Female';
 import MaleIcon from '@mui/icons-material/Male';
 
-const PatientDetails = ({patient}) => {
+interface PatientDetailsProps  {
+  patient: Patient | undefined | null;
+  diagnoses: Diagnosis[];
+}
+
+const PatientDetails = ({patient, diagnoses}: PatientDetailsProps) => {
   if (!patient) {
     return null;
   }
+
   console.log('patient', patient);
-  console.log('female', FemaleIcon);
-  console.log('male', MaleIcon);
+  console.log('diagnoses', diagnoses);
+
+  const getDescription = (code: string): string => {
+    const diagnosis = diagnoses.find(d => d.code === code);
+    return diagnosis ? diagnosis.name : '';
+  };
 
   return (
     <div>
       <h2 style={{display: 'flex'}}>
         {patient.name}
-
         { ( (patient.gender === 'female') && <FemaleIcon /> ) 
         || ( (patient.gender === 'male') && <MaleIcon /> ) 
         }
@@ -32,12 +43,25 @@ const PatientDetails = ({patient}) => {
       ssn: {patient.ssn || 'no ssn available'}
       <br />
       occupation: {patient.occupation}
+      <br />
+      <h2>entries</h2>
+      {patient.entries.length === 0 
+          ? <p>No entries available</p> 
+          : (patient.entries.map(entry => (
+              <div key={entry.id}>
+                <p>{entry.date} <i>{entry.description}</i></p>
+                {entry.diagnosisCodes?.map(diagCode => (
+                    <li style={{marginLeft: '50px'}}key={diagCode}>{diagCode} {getDescription(diagCode)}</li>
+                ))}
+              </div>
+            )))}
     </div>
   );
 };
 
 const App = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
+  const [diagnoses, setDiagnoses] = useState<Diagnosis[]>([]);
 
   useEffect(() => {
     void axios.get<void>(`${apiBaseUrl}/ping`);
@@ -48,13 +72,20 @@ const App = () => {
     };
     void fetchPatientList();
   }, []);
+
+  useEffect(() => {
+    const fetchDiagnoseList = async() => {
+      const diagnoses = await diagnoseService.getAll();
+      setDiagnoses(diagnoses);
+    };
+    void fetchDiagnoseList();
+  }, []);
   
 
-  // for ex 9.22
-    const match = useMatch('/patients/:id');
-    const patient = match 
-      ? patients.find(patient => patient.id === String(match.params.id))
-      : null;
+  const match = useMatch('/patients/:id');
+  const patient = match 
+    ? patients.find(patient => patient.id === String(match.params.id))
+    : null;
 
   return (
     <div className="App">
@@ -68,7 +99,7 @@ const App = () => {
           <Divider hidden />
           <Routes>
             <Route path="/" element={<PatientListPage patients={patients} setPatients={setPatients} />} />
-            <Route path="/patients/:id" element={<PatientDetails patient={patient}/>} />
+            <Route path="/patients/:id" element={<PatientDetails patient={patient} diagnoses={diagnoses}/>} />
           </Routes>
         </Container>
     </div>
