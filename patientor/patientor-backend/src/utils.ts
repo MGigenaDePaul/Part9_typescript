@@ -13,13 +13,6 @@ const toNewPatientEntry = (object: unknown): NewPatientEntry => {
   return newEntrySchema.parse(object);
 };
 
-// const parseDiagnosisCodes = (object: unknown): Array<Diagnosis['code']> => {
-//   if (!object || typeof object !== 'object' || !('diagnosisCodes' in object)) {
-//     return [] as Array<Diagnosis['code']>;
-//   }
-//   return object.diagnosisCodes as Array<Diagnosis['code']>;
-// };
-
 // schemas for entries
 const baseEntrySchema = z.object({
   date: z.string(),
