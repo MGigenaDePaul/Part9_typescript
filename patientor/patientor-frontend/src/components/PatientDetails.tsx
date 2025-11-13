@@ -17,8 +17,6 @@ const PatientDetails = ({patient, diagnoses}: PatientDetailsProps) => {
   console.log('patient', patient);
   console.log('diagnoses', diagnoses);
 
-
-
   return (
     <div>
       <h2 style={{display: 'flex'}}>
