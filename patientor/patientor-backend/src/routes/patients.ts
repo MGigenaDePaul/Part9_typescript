@@ -1,5 +1,5 @@
 import express from 'express';
-import { newEntrySchema } from '../utils';
+import { newEntrySchema, toNewEntry } from '../utils';
 import { Request, Response, NextFunction } from 'express';
 import patientService from '../services/patientService';
 import z from 'zod';
@@ -29,6 +29,32 @@ router.get('/:id', (req, res) => {
   }
 });
 
+router.get('/:id/entries', (req, res) => {
+  const patient = patientService.findById(String(req.params.id));
+  if (patient) {
+    res.send(patient.entries);
+  } else {
+    res.sendStatus(404);
+  }
+});
+
+router.post('/', newPatientParser, (req: Request<unknown, unknown, NewPatientEntry>, res: Response<Patient>) => {
+  const addedPatient = patientService.addPatient(req.body);
+  res.json(addedPatient);
+});
+
+router.post('/:id/entries', (req, res) => {
+  const patientId = String(req.params.id);
+  const patient = patientService.findById(patientId);
+  if (!patient) { 
+    return res.status(404).send({error: 'Patient not found' });
+  };
+
+  const newEntry = toNewEntry(req.body);
+  const addedEntry = patientService.addEntry(patientId, newEntry);
+  return res.json(addedEntry);
+});
+
 const errorMiddleware = (error: unknown, _req: Request, res: Response, next: NextFunction) => { 
   if (error instanceof z.ZodError) {
     res.status(400).send({ error: error.issues });
@@ -36,11 +62,6 @@ const errorMiddleware = (error: unknown, _req: Request, res: Response, next: Nex
     next(error);
   }
 };
-
-router.post('/', newPatientParser, (req: Request<unknown, unknown, NewPatientEntry>, res: Response<Patient>) => {
-  const addedEntry = patientService.addPatient(req.body);
-  res.json(addedEntry);
-});
 
 router.use(errorMiddleware);
 
