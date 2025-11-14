@@ -29,6 +29,7 @@ router.get('/:id', (req, res) => {
   }
 });
 
+// get specific entries from a patient
 router.get('/:id/entries', (req, res) => {
   const patient = patientService.findById(String(req.params.id));
   if (patient) {
@@ -44,15 +45,24 @@ router.post('/', newPatientParser, (req: Request<unknown, unknown, NewPatientEnt
 });
 
 router.post('/:id/entries', (req, res) => {
-  const patientId = String(req.params.id);
-  const patient = patientService.findById(patientId);
-  if (!patient) { 
-    return res.status(404).send({error: 'Patient not found' });
-  };
+  try {
+    const patientId = String(req.params.id);
+    const patient = patientService.findById(patientId);
 
-  const newEntry = toNewEntry(req.body);
-  const addedEntry = patientService.addEntry(patientId, newEntry);
-  return res.json(addedEntry);
+    if (!patient) { 
+      return res.status(404).send({error: 'Patient not found' });
+    };
+
+    const newEntry = toNewEntry(req.body);
+    const addedEntry = patientService.addEntry(patientId, newEntry);
+    return res.json(addedEntry);
+  } catch (error: unknown){
+    let errorMessage = 'Error: ';
+    if (error instanceof Error) {
+      errorMessage += error.message;
+    }
+    return res.status(400).send(errorMessage);
+  }
 });
 
 const errorMiddleware = (error: unknown, _req: Request, res: Response, next: NextFunction) => { 

@@ -13,7 +13,7 @@ const EntryDetails = ({entry, diagnoses}: EntryDetailsProps) => {
     
     const getDiagnosisDescription = (code: string): string => {
         const diagnosis = diagnoses.find(d => d.code === code);
-        return diagnosis ? diagnosis.name : '';
+        return diagnosis ? diagnosis.name : 'This code does not exist';
     };
 
     const assertNever = (value: never): never => {
