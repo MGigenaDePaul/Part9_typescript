@@ -44,24 +44,20 @@ router.post('/', newPatientParser, (req: Request<unknown, unknown, NewPatientEnt
   res.json(addedPatient);
 });
 
-router.post('/:id/entries', (req, res) => {
+router.post('/:id/entries', (req, res, next) => {
   try {
     const patientId = String(req.params.id);
     const patient = patientService.findById(patientId);
 
     if (!patient) { 
-      return res.status(404).send({error: 'Patient not found' });
+      res.status(404).send({error: 'Patient not found' });
     };
 
     const newEntry = toNewEntry(req.body);
     const addedEntry = patientService.addEntry(patientId, newEntry);
-    return res.json(addedEntry);
+    res.json(addedEntry);
   } catch (error: unknown){
-    let errorMessage = 'Error: ';
-    if (error instanceof Error) {
-      errorMessage += error.message;
-    }
-    return res.status(400).send(errorMessage);
+    next(error);
   }
 });
 

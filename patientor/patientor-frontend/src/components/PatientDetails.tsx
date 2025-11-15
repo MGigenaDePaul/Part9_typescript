@@ -20,6 +20,16 @@ const PatientDetails = ({patient, diagnoses}: PatientDetailsProps) => {
   const [newHealthCheckRating, setNewHealthCheckRating] = useState('');
   const [newDiagnosisCodes, setNewDiagnosisCodes] = useState('');
   const [error, setError] = useState<string>('');
+  const [entryType, setEntryType] = useState<'HealthCheck' | 'Hospital' | 'OccupationalHealthcare'>('HealthCheck');
+
+  // STATES HOSPITAL
+  const [dischargeDate, setDischargeDate] = useState('');
+  const [dischargeCriteria, setDischargeCriteria] = useState('');
+
+  // STATES OCCUPATIONALHEALTHCARE
+  const [employerName, setEmployerName] = useState('');
+  const [sickLeaveStartDate, setSickLeaveStartDate] = useState('');
+  const [sickLeaveEnddate, setSickLeaveEndDate] = useState('');
 
   useEffect(() => {
     if (patient?.entries){
@@ -54,10 +64,27 @@ const PatientDetails = ({patient, diagnoses}: PatientDetailsProps) => {
     setError('');
     } catch (error) {
       if (axios.isAxiosError(error)) {  
-        if (error.response) {
-          console.log('error response', error.response);
-          console.log('error data', error.response.data);
-          setError(error.response.data);
+        if (error.response?.data) {
+          console.log('error response data', error.response.data);
+          const errorData = error.response.data;
+
+          // handle errors from zod like { error: [...] }
+            if (errorData.error && Array.isArray(errorData.error)) {
+              console.log('data error', errorData.error);
+              const errorMessages = errorData.error.map((error: { path: unknown[]; message: unknown; }) => {
+                const field = error.path.join('');
+                return `Value of ${field} Incorrect: ${newHealthCheckRating}`;
+              }).join('. ');
+              setError(errorMessages);
+            } 
+          // if it's a string
+            else if (typeof errorData === 'string') {
+              setError(errorData);
+            } 
+          // if it's another object
+            else {
+              setError(JSON.stringify(errorData));
+            }
         }
       } else {
         setError('Error connecting to server');
@@ -75,15 +102,13 @@ const PatientDetails = ({patient, diagnoses}: PatientDetailsProps) => {
   };
 
   const divOfInputStyles = {
-    border: '1px solid rgb(100,100,100)',
-    padding: '13px',
-    gap: '5px',
-    margin: '5px',
+    padding: '5px',
   };
 
   const labelStyles = {
-    display: 'block',
-    marginBottom: '3px',
+    display: 'flex',
+    alignContent: 'start',
+    justifyContent: 'space-between',
     fontSize: '12px',
     fontWeight: 'bold',
     color: 'rgba(100, 100, 100, 2)'
@@ -136,8 +161,8 @@ const PatientDetails = ({patient, diagnoses}: PatientDetailsProps) => {
           <input value={newDiagnosisCodes} style={inputStyles} onChange={(event) => setNewDiagnosisCodes(event.target.value)} />
         </div>
 
-        <div style={{display: 'flex', justifyContent: 'space-between'}}>
-          <Button type='reset' style={{background: 'rgb(255,0,0)'}} variant='contained'>CANCEL</Button>
+        <div style={{display: 'flex', justifyContent: 'space-between', marginTop: '10px'}}>
+          <Button type='reset' style={{background: 'rgb(238, 53, 77)'}} variant='contained'>CANCEL</Button>
           <Button type='submit' style={{background: 'rgb(110, 110, 110)'}} variant='contained'>ADD</Button>
         </div>
       </form>
