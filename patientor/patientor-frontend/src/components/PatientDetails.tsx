@@ -1,6 +1,6 @@
 import FemaleIcon from '@mui/icons-material/Female';
 import MaleIcon from '@mui/icons-material/Male';
-import { Diagnosis, Entry, Patient} from "../types";
+import { Diagnosis, Entry, EntryWithoutId, Patient} from "../types";
 import { useEffect, useState } from 'react';
 import EntryDetails from './EntryDetails';
 import patientService from '../services/patients';
@@ -27,9 +27,9 @@ const PatientDetails = ({patient, diagnoses}: PatientDetailsProps) => {
   const [dischargeCriteria, setDischargeCriteria] = useState('');
 
   // STATES OCCUPATIONALHEALTHCARE
-  const [employerName, setEmployerName] = useState('');
+  const [newEmployerName, setNewEmployerName] = useState('');
   const [sickLeaveStartDate, setSickLeaveStartDate] = useState('');
-  const [sickLeaveEnddate, setSickLeaveEndDate] = useState('');
+  const [sickLeaveEndDate, setSickLeaveEndDate] = useState('');
 
   useEffect(() => {
     if (patient?.entries){
@@ -44,14 +44,43 @@ const PatientDetails = ({patient, diagnoses}: PatientDetailsProps) => {
   const handleSubmit = async (event: React.SyntheticEvent) => {
     event.preventDefault();
     try {
-      const entryToAdd = {
-      type: 'HealthCheck' as const,
+      const baseEntry = {
       description: newDescription,
       date: newDate,
       specialist: newSpecialist,
-      healthCheckRating: Number(newHealthCheckRating),
       diagnosisCodes: newDiagnosisCodes ? newDiagnosisCodes.split(',').map(diagCode => diagCode.trim()) : undefined,
     };
+
+    // create entry depending on the type
+    let entryToAdd: EntryWithoutId;
+
+    switch (entryType) {
+      case 'HealthCheck':
+        entryToAdd = {
+          ...baseEntry,
+          type: 'HealthCheck' as const,
+          healthCheckRating: Number(newHealthCheckRating),
+        }; break;
+      case 'Hospital':
+        entryToAdd = {
+          ...baseEntry,
+          type: 'Hospital' as const,
+          discharge: {
+            date: dischargeDate,
+            criteria: dischargeCriteria
+          }
+        }; break;
+      case 'OccupationalHealthcare':
+        entryToAdd = {
+          ...baseEntry,
+          type: 'OccupationalHealthcare' as const,
+          employerName: newEmployerName,
+          sickLeave: {
+            startDate: sickLeaveStartDate,
+            endDate: sickLeaveEndDate
+          }
+        }; break;
+    }
 
     const addedEntry = await patientService.addEntry(patient.id, entryToAdd);
     setEntries(entries.concat(addedEntry));
@@ -61,6 +90,11 @@ const PatientDetails = ({patient, diagnoses}: PatientDetailsProps) => {
     setNewSpecialist('');
     setNewHealthCheckRating('');
     setNewDiagnosisCodes('');
+    setDischargeDate('');
+    setDischargeCriteria('');
+    setNewEmployerName('');
+    setSickLeaveStartDate('');
+    setSickLeaveEndDate('');
     setError('');
     } catch (error) {
       if (axios.isAxiosError(error)) {  
@@ -98,7 +132,13 @@ const PatientDetails = ({patient, diagnoses}: PatientDetailsProps) => {
     setNewDate('');
     setNewSpecialist('');
     setNewHealthCheckRating('');
-    setNewDiagnosisCodes('');  
+    setNewDiagnosisCodes('');
+    setDischargeDate('');
+    setDischargeCriteria('');
+    setNewEmployerName('');
+    setSickLeaveStartDate('');
+    setSickLeaveEndDate('');
+    setError('');
   };
 
   const divOfInputStyles = {
@@ -121,6 +161,14 @@ const PatientDetails = ({patient, diagnoses}: PatientDetailsProps) => {
     outline: 'none',
   };
 
+  const sickLeaveStyles = {
+    border: 'none',
+    borderBottom: '1px solid black',
+    width: '20%',
+    outline: 'none',
+    marginLeft: '10px',
+  };
+
   return (
     <div>
       <h2 style={{display: 'flex'}}>
@@ -139,28 +187,78 @@ const PatientDetails = ({patient, diagnoses}: PatientDetailsProps) => {
       {error && <Alert severity={'error'}>{error}</Alert>}
       {/*ENTRIES FORM */}
       <form onSubmit={handleSubmit} style={{border: '2px solid black', padding: '10px'}} onReset={handleReset}>
-        <h3>New HealthCheck entry</h3>
+        <h3>New Entry</h3> 
+        <div style={divOfInputStyles}>
+          {/*SELECT ENTRY TYPE*/}
+          <select value={entryType} onChange={(event) => setEntryType(event.target.value as 'HealthCheck' | 'Hospital' | 'OccupationalHealthcare')}>
+            <option value='HealthCheck'>HealthCheck</option>
+            <option value='Hospital'>Hospital</option>
+            <option value='OccupationalHealthcare'>OccupationalHealthCare</option>
+          </select>
+        </div>
+
+        {/*COMMON FIELDS FOR ENTRIES*/}
         <div style={divOfInputStyles}>
           <label style={labelStyles}>Description</label>
           <input type='text' style={inputStyles} value={newDescription} onChange={(event) => setNewDescription(event.target.value)}/>
         </div>
         <div style={divOfInputStyles}>
           <label style={labelStyles}>Date</label>
-          <input value={newDate} style={inputStyles} onChange={(event) => setNewDate(event.target.value)} />
+          <input type='date' value={newDate} style={inputStyles} onChange={(event) => setNewDate(event.target.value)} />
         </div>
         <div style={divOfInputStyles}>
           <label style={labelStyles}>Specialist</label>
           <input value={newSpecialist} style={inputStyles} onChange={(event) => setNewSpecialist(event.target.value)} />
         </div>
         <div style={divOfInputStyles}>
-          <label style={labelStyles}>HealthCheck Rating</label>
-          <input value={newHealthCheckRating} style={inputStyles} onChange={(event) => setNewHealthCheckRating(event.target.value)} />
-        </div>
-        <div style={divOfInputStyles}>
           <label style={labelStyles}>Diagnoses Codes</label>
           <input value={newDiagnosisCodes} style={inputStyles} onChange={(event) => setNewDiagnosisCodes(event.target.value)} />
         </div>
 
+        {/*CONDITIONAL FIELDS DEPENDING OF THE ENTRY TYPE */}
+
+        {entryType === 'HealthCheck' && (
+          <div style={divOfInputStyles}>
+            <label style={labelStyles}>HealthCheck Rating</label>
+            <input value={newHealthCheckRating} style={inputStyles} onChange={(event) => setNewHealthCheckRating(event.target.value)} />
+          </div>
+        )}
+
+        {entryType === 'Hospital' && (
+          <>          
+            <div style={divOfInputStyles}>
+              <label style={labelStyles}>Discharge Date</label>
+              <input style={inputStyles} type='date' value={dischargeDate} onChange={(event) => setDischargeDate(event.target.value)} />
+            </div>
+            <div style={divOfInputStyles}>
+              <label style={labelStyles}>Discharge Criteria</label>
+              <input style={inputStyles} value={dischargeCriteria} onChange={(event) => setDischargeCriteria(event.target.value)} />
+            </div>
+          </>
+        )}
+
+
+        {entryType === 'OccupationalHealthcare' && (
+          <>
+            <div style={divOfInputStyles}>
+              <label style={labelStyles}>Employer Name</label>
+              <input style={inputStyles} value={newEmployerName} onChange={(event) => setNewEmployerName(event.target.value)} />
+            </div>
+            <div style={divOfInputStyles}>
+              <label style={labelStyles}>SickLeave</label>
+              <div>
+                <label style={{marginLeft: '10px', fontSize: '12px', fontWeight: 'bold', color: 'rgba(100, 100, 100, 2)'}}>Start Date: </label>
+                <input type='date' style={sickLeaveStyles} value={sickLeaveStartDate} onChange={(event) => setSickLeaveStartDate(event.target.value)} />
+              </div>
+              <div>
+                <label style={{marginLeft: '10px', fontSize: '12px', fontWeight: 'bold', color: 'rgba(100, 100, 100, 2)'}}>End Date: </label>
+                <input type='date' style={sickLeaveStyles} value={sickLeaveEndDate} onChange={(event) => setSickLeaveEndDate(event.target.value)} />
+              </div>
+            </div>
+          </>
+        )}
+
+        
         <div style={{display: 'flex', justifyContent: 'space-between', marginTop: '10px'}}>
           <Button type='reset' style={{background: 'rgb(238, 53, 77)'}} variant='contained'>CANCEL</Button>
           <Button type='submit' style={{background: 'rgb(110, 110, 110)'}} variant='contained'>ADD</Button>
