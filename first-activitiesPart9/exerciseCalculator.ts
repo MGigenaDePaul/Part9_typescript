@@ -41,7 +41,7 @@ export const calculateExercises = (target: number, array: number[]) => {
         if (array[i] > 0) {
             trainingDays = trainingDays + 1;
         }
-    }
+    }   
 
     average = countHours / array.length;
     console.log('average', average);

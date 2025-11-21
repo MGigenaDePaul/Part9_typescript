@@ -15,7 +15,7 @@ app.get('/bmi', (req, res) => {
       res.status(400).send({error: 'malformatted parameters'});
       throw new Error('malformatted parameters');
     }
-  
+    
     res.send({
       weight: req.query.weight,
       height: req.query.height,
